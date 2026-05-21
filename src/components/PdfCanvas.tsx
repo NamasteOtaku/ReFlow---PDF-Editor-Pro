@@ -216,7 +216,10 @@ function EditableSpan({
   onChange: (v: string) => void;
 }) {
   const spanRef = useRef<HTMLSpanElement>(null);
+HEAD
   const hasCommitted = useRef(false);
+
+ 5c5faf24297896dcf172553ab0e829bfb3711c86
 
   // Keep DOM text in sync with prop value whenever it changes from outside
   // (e.g. store update after commit). Without this, contentEditable retains
@@ -229,18 +232,29 @@ function EditableSpan({
     }
   }, [value]);
 
+HEAD
   const commit = (text: string) => {
     if (text !== value) onChange(text);
   };
 
   const isEdited = hasCommitted.current || edited;
 
+
+  const commit = () => {
+    const el = spanRef.current;
+    if (!el) return;
+    const v = el.textContent ?? "";
+    if (v !== value) onChange(v);
+  };
+
+ 5c5faf24297896dcf172553ab0e829bfb3711c86
   return (
     <span
       ref={spanRef}
       contentEditable
       suppressContentEditableWarning
       spellCheck={false}
+HEAD
       onBlur={(e) => {
         const text = (e.currentTarget as HTMLSpanElement).textContent ?? "";
         hasCommitted.current = true;
@@ -254,11 +268,23 @@ function EditableSpan({
           hasCommitted.current = true;
           commit(text);
           el.blur();
+
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          commit();
+          (e.currentTarget as HTMLSpanElement).blur();
+ 5c5faf24297896dcf172553ab0e829bfb3711c86
         }
       }}
       className={
         "absolute cursor-text whitespace-pre rounded-sm px-0.5 leading-none caret-foreground outline-none transition hover:bg-accent/60 hover:text-foreground focus:bg-accent focus:text-foreground focus:ring-2 focus:ring-primary/60 " +
+HEAD
         (isEdited
+
+        (edited
+ 5c5faf24297896dcf172553ab0e829bfb3711c86
           ? "bg-white text-foreground"
           : "bg-white/0 text-transparent")
       }

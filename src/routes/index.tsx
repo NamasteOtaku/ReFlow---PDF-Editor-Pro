@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { usePdfStore } from "@/lib/pdf-store";
 import { Dropzone } from "@/components/Dropzone";
 import { PdfCanvas } from "@/components/PdfCanvas";
+HEAD
 import { AdSlot } from "@/components/AdSlot";
 import { AdblockModal } from "@/components/AdblockModal";
 import { useAdblockDetect } from "@/hooks/useAdblockDetect";
+
+5c5faf24297896dcf172553ab0e829bfb3711c86
 import { exportEditedPdf, downloadBytes } from "@/lib/pdf-export";
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
@@ -37,11 +40,14 @@ function Index() {
     setOcrLanguage,
   } = usePdfStore();
   const [exporting, setExporting] = useState(false);
+HEAD
   const { isAdblockEnabled } = useAdblockDetect();
 
   if (isAdblockEnabled) {
     return <AdblockModal />;
   }
+
+5c5faf24297896dcf172553ab0e829bfb3711c86
 
   const handleExport = async () => {
     if (!arrayBuffer || !fileName) return;
@@ -184,6 +190,7 @@ function Index() {
                   {status.message}
                 </div>
               )}
+HEAD
               <div className="flex flex-row gap-4">
                 <div className="min-w-0 flex-1">
                   <PdfCanvas />
@@ -192,6 +199,9 @@ function Index() {
                   <AdSlot placement="sidebar" />
                 </aside>
               </div>
+
+              <PdfCanvas />
+5c5faf24297896dcf172553ab0e829bfb3711c86
             </div>
           </section>
         )}

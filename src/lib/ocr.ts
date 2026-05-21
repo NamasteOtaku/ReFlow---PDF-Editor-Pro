@@ -6,9 +6,15 @@ import type { OcrPage, OcrWord } from "@/lib/pdf-store";
 // >= ~4.17 reaches 300 DPI.
 export async function renderPageForOcr(
   page: import("pdfjs-dist").PDFPageProxy,
+HEAD
   targetDpi = 600,
 ): Promise<{ canvas: HTMLCanvasElement; scale: number }> {
   // PDF base is 72 DPI. Force at least the requested DPI (default 600) and
+
+  targetDpi = 300,
+): Promise<{ canvas: HTMLCanvasElement; scale: number }> {
+  // PDF base is 72 DPI. Force at least the requested DPI (default 300) and
+5c5faf24297896dcf172553ab0e829bfb3711c86
   // never go below 4x to give noisy / AI-generated pages enough pixel density.
   const scale = Math.max(4, targetDpi / 72);
   const viewport = page.getViewport({ scale });
@@ -208,12 +214,17 @@ export async function ocrPage(opts: {
   const renderViewport = page.getViewport({ scale: renderScale });
 
   // Render at high DPI for OCR
+HEAD
   const { canvas: hiCanvas, scale: ocrScale } = await renderPageForOcr(page, 600);
+
+  const { canvas: hiCanvas, scale: ocrScale } = await renderPageForOcr(page, 300);
+5c5faf24297896dcf172553ab0e829bfb3711c86
   // Deskew
   const skew = estimateSkew(hiCanvas);
   const deskewed = rotateCanvas(hiCanvas, -skew);
 
   const { default: Tesseract } = await import("tesseract.js");
+HEAD
   const recognizeConfig = {
     logger: (m: { status: string; progress: number }) => {
       if (m.status === "recognizing text" && onProgress) onProgress(m.progress);
@@ -222,6 +233,13 @@ export async function ocrPage(opts: {
     tessedit_pageseg_mode: "11",
   } as unknown as Parameters<typeof Tesseract.recognize>[2];
   const result = await Tesseract.recognize(deskewed, language, recognizeConfig);
+
+  const result = await Tesseract.recognize(deskewed, language, {
+    logger: (m) => {
+      if (m.status === "recognizing text" && onProgress) onProgress(m.progress);
+    },
+  });
+5c5faf24297896dcf172553ab0e829bfb3711c86
 
   // Map word bboxes from the deskewed-hi-DPI canvas back to render coords.
   // For accuracy we map via the un-rotated hi-DPI canvas: tesseract bboxes are
