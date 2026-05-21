@@ -24,10 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+# Update the setup-node step to fix the warning
+- name: Setup Node
+  uses: actions/setup-node@v4
+  with:
+    node-version: 22 # Use v22 to avoid the Node 20 deprecation warning
           
       - name: Install Dependencies
         run: npm install
